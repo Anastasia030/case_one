@@ -1,9 +1,6 @@
-import textblob
 from textblob import TextBlob
 from textblob.sentiments import NaiveBayesAnalyzer
-import nltk
 from googletrans import Translator, constants
-
 # nltk.download('movie_reviews')
 # nltk.download('punkt')
 
@@ -12,7 +9,7 @@ text = input("Введите текст:") #почистить пробелы
 translator = Translator()
 translation = translator.translate(text)
 # print(translation.src)
-# print(translation.text)
+print(translation.text)
 
 if translation.src == 'ru':
     text = translation.text
@@ -42,8 +39,18 @@ ASL = len(text_words) / len(text_sentence)
 ASW = v_count / len(text_words)
 K = 206.835 - 1.015 * ASL - 84.6 * ASW
 K_ru = 206,835 - 1,3 * ASL - 60,1 * ASW
-if translation.src == 'ru':
-    K = K_ru
+
+
+t0 = TextBlob(text)
+t = t0
+ton = t.polarity
+if (ton >= -1.0) and (ton < 0):
+    analysis_ton = 'Негативный'
+elif (ton > 0) and (ton <= 1.0):
+    analysis_ton = 'Положительный'
+elif ton == 0:
+    analysis_ton = 'Нейтральный'
+
 
 print('Предложений:', len(text_sentence))
 print('Слов:', len(text_words))
@@ -51,6 +58,7 @@ print('Слогов:', v_count)
 print('Средняя длина предложений в слогах:', ASL)
 print('Средняя длина слов в слогах:', ASW)
 print('Индекс удобочитаемости Флеша:', K)
+
 if K > 50:
     if K > 80:
         print('Текст очень легко читается (для младших классов)')
@@ -61,9 +69,6 @@ else:
         print('Текст немного трудно читать (для студентов)')
     else:
         print('Текст трудно читать (для выпускников ВУЗов)')
-print('Тональность текста:')
-if text_one.sentiment == 'neg':
-    print('лох')
 
-print(text_one.sentiment)
-print('Объективность:')
+print('Тональность текста:', analysis_ton)
+print('Объективность:', round(1 - TextBlob(text).subjectivity, 2) * 100, '%', sep='')
